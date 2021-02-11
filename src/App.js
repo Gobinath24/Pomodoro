@@ -1,56 +1,60 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import './App.css';
 
 function padTime(time)  {
   return time.toString().padStart(2, '0');
 }
 
-let interval = null;
-
-// clearInterval(interval);//This is the code help to stop the interval
-
 export default function App() {
-  //Seting a title to display in the text
-  const[title] = useState('Let the Pomodoro begin!!');
-  const [timeLeft, setTimeLeft] = useState(10); 
-  //This display 25 minutes and 60 sec
-
+  const [timeLeft, setTimeLeft] = useState(25 * 60);
+  const [title, setTitle] = useState('Let the  countdown begin!!');
+  const [isRunning, setIsRunning] = useState(true);
+  const intervalRef = useRef(null);
+ 
   function startTimer() {
-    //help for decrement the time
-    interval = setInterval(() =>{
+    if (intervalRef.current !== null) return;
+    setIsRunning(true);
+    setTitle('Your doing great!!!');
+    intervalRef.current = setInterval(() => {
       setTimeLeft(timeLeft => {
-        if(timeLeft >= 1)
-        return timeLeft - 1;
-        //  reset the timer
+        if(timeLeft >= 1 ) return timeLeft - 1;
+        resetTimer();
         return 0;
       });
-    }, 1000);
-  }
+  }, 1000);
+}
 
   function stopTimer()  {
-    console.log(interval);
-    clearInterval(interval);
+    if (intervalRef.current === null) return;
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
+    setTitle('Keep doing!!!');
+    setIsRunning(false);
   }
 
-  const minutes = padTime(Math.floor(timeLeft / 60)); 
-  //Here math.floor is to roundoff the divided element
-  const seconds = padTime(timeLeft - minutes * 60);
-  //padStart work only for string
+  function resetTimer() {
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
+    setTitle('Ready Again to finish off');
+    setTimeLeft(25 * 60);
+    setIsRunning(true);
+  }
 
-
+  const min = padTime(Math.floor(timeLeft / 60));
+  const sec = padTime(timeLeft - min * 60);
   return (
     <div className="app">
-      <h2>{title}</h2><br/>
+      <h2>{title}</h2>
         
         <div className='timer'>
-          <span>{minutes}</span>
+          <span>{min}</span>
           <span>:</span>
-          <span>{seconds}</span>
+          <span>{sec}</span>
         </div>
         <div className='buttons'>
-          <button onClick={startTimer}>Start</button>
-          <button onClick={stopTimer}>Stop</button>
-          <button>Reset</button>
+          {isRunning && <button onClick={startTimer}>Start</button>}
+          {isRunning && <button onClick={stopTimer}>Stop</button>}
+          <button onClick={resetTimer}>Reset</button>
         </div>
     </div>
   );
