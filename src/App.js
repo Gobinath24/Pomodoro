@@ -10,7 +10,7 @@ export default function App() {
   const [title, setTitle] = useState('Let the  countdown begin!!');
   const [isRunning, setIsRunning] = useState(true);
   const intervalRef = useRef(null);
- 
+  const audio = new Audio('https://media.geeksforgeeks.org/wp-content/uploads/20190531135120/beep.mp3');
   function startTimer() {
     if (intervalRef.current !== null) return;
     setIsRunning(true);
@@ -18,6 +18,7 @@ export default function App() {
     intervalRef.current = setInterval(() => {
       setTimeLeft(timeLeft => {
         if(timeLeft >= 1 ) return timeLeft - 1;
+        if (timeLeft === 0 )  audio.play();
         resetTimer();
         return 0;
       });
